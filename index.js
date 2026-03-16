@@ -1,6 +1,6 @@
 const express = require('express');
 const crypto = require('crypto');
-const https = require('https');
+const axios = require('axios');
 const app = express();
 app.use(express.json());
 
@@ -19,11 +19,8 @@ async function binanceFetch(path, method = 'GET', params = {}) {
   const sig = sign(query);
   const url = `${BASE}${path}?${query}&signature=${sig}`;
   
-  const res = await fetch(url, {
-    method,
-    headers: { 'X-MBX-APIKEY': API_KEY }
-  });
-  return res.json();
+  const res = await axios({ method, url, headers: { 'X-MBX-APIKEY': API_KEY } });
+  return res.data;
 }
 
 app.get('/health', (_, res) => res.json({ ok: true }));
@@ -33,7 +30,7 @@ app.get('/balance', async (req, res) => {
     const data = await binanceFetch('/api/v3/account');
     res.json(data);
   } catch (e) {
-    res.status(500).json({ error: e.message });
+    res.status(500).json({ error: e.message, details: e.response?.data });
   }
 });
 
@@ -42,7 +39,7 @@ app.post('/order', async (req, res) => {
     const data = await binanceFetch('/api/v3/order', 'POST', req.body);
     res.json(data);
   } catch (e) {
-    res.status(500).json({ error: e.message });
+    res.status(500).json({ error: e.message, details: e.response?.data });
   }
 });
 
@@ -51,7 +48,7 @@ app.delete('/order', async (req, res) => {
     const data = await binanceFetch('/api/v3/order', 'DELETE', req.body);
     res.json(data);
   } catch (e) {
-    res.status(500).json({ error: e.message });
+    res.status(500).json({ error: e.message, details: e.response?.data });
   }
 });
 
@@ -60,8 +57,8 @@ app.get('/openOrders', async (req, res) => {
     const data = await binanceFetch('/api/v3/openOrders', 'GET', req.query);
     res.json(data);
   } catch (e) {
-    res.status(500).json({ error: e.message });
+    res.status(500).json({ error: e.message, details: e.response?.data });
   }
 });
 
-app.listen(process.env.PORT || 3000, () => console.log('Proxy running on port', process.env.PORT || 3000));
+app.listen(process.env.PORT || 3000, () => console.log('Proxy running'));

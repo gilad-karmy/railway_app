@@ -1,6 +1,7 @@
 const express = require('express');
 const crypto = require('crypto');
 const axios = require('axios');
+
 const app = express();
 app.use(express.json());
 
@@ -30,7 +31,11 @@ app.get('/balance', async (req, res) => {
     const data = await binanceFetch('/api/v3/account');
     res.json(data);
   } catch (e) {
-    res.status(500).json({ error: e.message, details: e.response?.data });
+    res.status(500).json({ 
+      error: e.message, 
+      details: e.response?.data,
+      status: e.response?.status
+    });
   }
 });
 
@@ -39,7 +44,11 @@ app.post('/order', async (req, res) => {
     const data = await binanceFetch('/api/v3/order', 'POST', req.body);
     res.json(data);
   } catch (e) {
-    res.status(500).json({ error: e.message, details: e.response?.data });
+    res.status(500).json({ 
+      error: e.message, 
+      details: e.response?.data,
+      status: e.response?.status
+    });
   }
 });
 
@@ -48,7 +57,11 @@ app.delete('/order', async (req, res) => {
     const data = await binanceFetch('/api/v3/order', 'DELETE', req.body);
     res.json(data);
   } catch (e) {
-    res.status(500).json({ error: e.message, details: e.response?.data });
+    res.status(500).json({ 
+      error: e.message, 
+      details: e.response?.data,
+      status: e.response?.status
+    });
   }
 });
 
@@ -57,8 +70,13 @@ app.get('/openOrders', async (req, res) => {
     const data = await binanceFetch('/api/v3/openOrders', 'GET', req.query);
     res.json(data);
   } catch (e) {
-    res.status(500).json({ error: e.message, details: e.response?.data });
+    res.status(500).json({ 
+      error: e.message, 
+      details: e.response?.data,
+      status: e.response?.status
+    });
   }
 });
 
-app.listen(process.env.PORT || 3000, () => console.log('Proxy running'));
+const PORT = process.env.PORT || 3000;
+app.listen(PORT, () => console.log(`Proxy running on port ${PORT}`));
